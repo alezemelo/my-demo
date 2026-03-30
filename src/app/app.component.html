@@ -1,5 +1,6 @@
+<div class="container-fluid">
+  <app-menu></app-menu>
+</div>
 <div class="container">
-  <app-second-osservable-component [valoreInput]="numero"></app-second-osservable-component>
-  <app-product-page></app-product-page>
-  <button (click)="changeInput()" class="btn btn-primary" (click)="numero = numero + 1">Incrementa Numero</button>
+  <router-outlet></router-outlet>
 </div>

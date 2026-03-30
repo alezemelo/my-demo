@@ -4,6 +4,8 @@ import { OffersService } from './offers.service';
 import { Observable, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
+import { environment } from '../../../environments/environment';
+
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +35,6 @@ export class ProductsService {
     return of(this.getProductsToBeOrdered());  
    }
    getProductFromApi(): Observable<Product[]> {    
-    return this.httpClient.get<Product[]>('http://localhost:7000/products');
+    return this.httpClient.get<Product[]>(`${environment.apiBaseUrl}/products`);
   }
 }

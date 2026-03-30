@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { ProductPageComponent } from "./products/components/product-page/product-page.component";
-import { SecondOsservableComponentComponent } from './products/components/second-osservable-component/second-osservable-component.component';
+import { RouterOutlet } from '@angular/router';
+import { MenuComponent } from './core/components/menu/menu.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [ProductPageComponent, SecondOsservableComponentComponent],
+  imports: [RouterOutlet, MenuComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

@@ -77,7 +77,7 @@ Al momento il progetto usa un database mockato con `json-server`:
 Per far girare l'app, è necessario avviare il fake server dalla cartella che contiene `db.json`:
 
 ```bash
-json-server db.json -p 7000 -d 1000
+npx json-server db.json -p 7000 -d 1000
 ```
 
 Dove `-p` indica la porta e `-d` il delay (in ms).
