@@ -2,21 +2,46 @@
 
 Questo è un progetto in Angular CLI version 19.2.22.
 
+
 ## Struttura del progetto
 
-Questa versione dell'applicazione e organizzata in questo modo:
+Questa versione dell'applicazione è organizzata in questo modo:
 
 - `src/` contiene tutto il codice dell'app.
-- `src/app/` e la radice dell'applicazione Angular.
+- `src/app/` è la radice dell'applicazione Angular.
 - `src/app/app.component.*` contiene il componente principale.
 - `src/app/app.routes.ts` e `src/app/app.config.ts` gestiscono routing e configurazione.
+- `src/app/core/components/menu/` contiene il componente di navigazione principale (menu).
 - `src/app/products/` raccoglie la feature Products con:
-	- `components/` per i componenti UI (table, page, details, ecc.).
-	- `models/` per i modelli TypeScript (es. `product.ts`).
-	- `pipes/` per le pipe personalizzate.
-	- `services/` per i servizi Angular (es. accesso ai dati).
+  - `components/` per i componenti UI (table, page, details, ecc.).
+  - `models/` per i modelli TypeScript (es. `product.ts`).
+  - `pipes/` per le pipe personalizzate.
+  - `services/` per i servizi Angular (es. accesso ai dati).
 - `src/styles.css` contiene gli stili globali.
 - `public/` ospita asset statici.
+
+## Navigazione e Routing
+
+L'applicazione utilizza il sistema di routing di Angular per gestire la navigazione tra le varie pagine. Il menu di navigazione principale si trova in `src/app/core/components/menu/` e utilizza le direttive `routerLink` per spostarsi tra le route definite.
+
+Le route principali sono definite in `src/app/app.routes.ts` e permettono di accedere alle seguenti pagine:
+
+- `/products` — Pagina dei prodotti
+- `/users` — Pagina degli utenti
+- `/second-observable` — Esempio con Observable
+- `/welcome` — Pagina di benvenuto (default)
+- Qualsiasi altro percorso non definito mostra la pagina Not Found
+
+Esempio di utilizzo di `routerLink` nel menu:
+
+```html
+<a [routerLink]="['/products']">Products</a>
+<a [routerLink]="['/users']">Users</a>
+<a [routerLink]="['/second-observable']">Second Observable</a>
+<a [routerLink]="['/welcome']">Welcome</a>
+```
+
+Il routing consente di caricare in modo lazy i componenti delle varie pagine, migliorando le performance e la struttura modulare dell'applicazione.
 
 ## Comandi Angular CLI
 
