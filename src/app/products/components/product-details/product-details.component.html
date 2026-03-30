@@ -1,0 +1,9 @@
+<div *ngIf="product as p" class="card mt-3">
+	<div class="card-body">
+		<h5 class="card-title">Dettagli Prodotto</h5>
+		<p class="mb-1"><strong>ID:</strong> {{ p.id }}</p> 
+		<p class="mb-1"><strong>Descrizione:</strong> {{ p.description }}</p>
+		<p class="mb-1"><strong>Prezzo:</strong> {{ p.price | currency:'EUR' }}</p>
+		<p class="mb-0"><strong>Data rilascio:</strong> {{ p.releaseDate | date:'dd-MM-yyyy' }}</p>
+	</div>
+</div>

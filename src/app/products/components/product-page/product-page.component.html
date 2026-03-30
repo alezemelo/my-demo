@@ -1,0 +1,20 @@
+<h1>Product Page</h1>
+
+<div *ngIf="products.length > 0" else noProducts>
+    <h2>Available Products</h2>
+        <app-products-table (notify)="onNotify($event)" [products]="products"></app-products-table>
+        <app-product-details [product]="selectedProduct"></app-product-details>
+</div>
+
+<div *ngIf="productsToBeOrdered && productsToBeOrdered.length > 0" else noProductsToOrder>
+    <h2>Products to Be Ordered</h2>
+        <app-products-table (notify)="onNotifyToBeOrdered($event)" [products]="productsToBeOrdered"></app-products-table>
+</div>
+
+<ng-template #noProducts>
+    <p>No products available.</p>   
+</ng-template>
+
+<ng-template #noProductsToOrder>
+    <p>No products to be ordered.</p>
+</ng-template>

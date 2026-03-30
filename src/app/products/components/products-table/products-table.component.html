@@ -1,0 +1,25 @@
+<table class="table table-bordered table-hover table-striped">
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>Price</th>
+            <th>Description</th>
+            <th>Release Date</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let product of products">
+            <td>{{ product.id }}</td>
+            <td>{{ product.price | currency:'EUR' }}</td>
+            <td>{{ product | myFirst | uppercase}}</td>
+            <td>{{ product.releaseDate | date:'dd-MM-yyyy' }}</td>
+            <td><img [src]="product.imageUrl" [alt]="product.id" width="100" height="100"></td>
+            <td>
+                <button class="btn btn-primary" (click)="showDetails(product)">Details</button>
+            </td>
+        </tr>
+    </tbody>
+
+</table>

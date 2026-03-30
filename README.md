@@ -1,59 +1,156 @@
 # MyDemo
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.22.
+Questo e un progetto in Angular CLI version 19.2.22.
 
-## Development server
+## Struttura del progetto
 
-To start a local development server, run:
+Questa versione dell'applicazione e organizzata in questo modo:
+
+- `src/` contiene tutto il codice dell'app.
+- `src/app/` e la radice dell'applicazione Angular.
+- `src/app/app.component.*` contiene il componente principale.
+- `src/app/app.routes.ts` e `src/app/app.config.ts` gestiscono routing e configurazione.
+- `src/app/products/` raccoglie la feature Products con:
+	- `components/` per i componenti UI (table, page, details, ecc.).
+	- `models/` per i modelli TypeScript (es. `product.ts`).
+	- `pipes/` per le pipe personalizzate.
+	- `services/` per i servizi Angular (es. accesso ai dati).
+- `src/styles.css` contiene gli stili globali.
+- `public/` ospita asset statici.
+
+## Comandi Angular CLI
+
+Creazione progetto:
 
 ```bash
-ng serve
+ng new my-app-name
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Generazione artefatti:
 
 ```bash
-ng generate component component-name
+ng generate component nome-componente
+ng generate directive nome-direttiva
+ng generate pipe nome-pipe
+ng generate service nome-servizio
+ng generate class nome-classe
+ng generate interface nome-interfaccia
+ng generate enum nome-enum
+ng generate guard nome-guard
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+Build, serve, lint, test:
 
 ```bash
 ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
+ng serve
+ng lint
 ng test
 ```
 
-## Running end-to-end tests
+## Mock API (json-server)
 
-For end-to-end (e2e) testing, run:
+Al momento il progetto usa un database mockato con `json-server`:
+
+- https://www.npmjs.com/package/json-server
+
+Per far girare l'app e necessario avviare il fake server con:
 
 ```bash
-ng e2e
+json-server noeDb.json -p 7000 -d 1000
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Dove `-p` indica la porta e `-d` il delay (in ms).
 
-## Additional Resources
+## HttpClient
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Per abilitare `HttpClient` si usa direttamente `app.config.ts`.
+
+Esempio:
+
+```ts
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+
+export const appConfig: ApplicationConfig = {
+	providers: [provideHttpClient()]
+};
+```
+
+## Concetti chiave
+
+### @Input e @Output
+
+- `@Input()` permette a un componente figlio di ricevere dati dal componente padre tramite binding in template.
+- `@Output()` espone un evento dal componente figlio al padre usando un `EventEmitter`.
+
+Esempio minimale:
+
+```ts
+// child.component.ts
+@Input() titolo = '';
+@Output() salvato = new EventEmitter<void>();
+```
+
+```html
+<!-- parent.component.html -->
+<app-child [titolo]="titoloPagina" (salvato)="onSalvato()"></app-child>
+```
+
+### Observable
+
+Gli `Observable` (RxJS) rappresentano flussi di dati asincroni. Si usano spesso per HTTP, eventi UI e stream di stato.
+
+- Si sottoscrivono con `subscribe()`.
+- Possono essere trasformati con operatori come `map`, `filter`, `switchMap`.
+- Nel template si preferisce la `async` pipe per gestire la sottoscrizione automaticamente.
+
+Esempi presenti nel progetto:
+
+- Creazione di uno stream con `of()` e sottoscrizione in [src/app/products/components/osservable-component/osservable-component.component.ts](src/app/products/components/osservable-component/osservable-component.component.ts#L11-L18).
+
+```ts
+const myObservaable = of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+const myObserverm = {
+	next: (value: number) => console.log(value),
+	error: (err: any) => console.error('Error:', err),
+	complete: () => console.log('Stream completato')
+};
+const mySubscription = myObservaable.subscribe(myObserverm);
+```
+
+- Uso di `range()` con `pipe()` e operatori `map`/`filter` in [src/app/products/components/second-osservable-component/second-osservable-component.component.ts](src/app/products/components/second-osservable-component/second-osservable-component.component.ts#L18-L24).
+
+```ts
+const sorgente$: Observable<number> = range(0,10);
+sorgente$.pipe(
+	map((n) => n * 3),
+	filter((n) => n % 2 === 0)
+).subscribe(n => console.log(n));
+```
+
+- Chiamata HTTP che ritorna un `Observable<Product[]>` in [src/app/products/services/products.service.ts](src/app/products/services/products.service.ts#L35-L36).
+
+```ts
+getProductFromApi(): Observable<Product[]> {
+	return this.httpClient.get<Product[]>('http://localhost:7000/products');
+}
+```
+
+- Sottoscrizione in componente con cleanup in `ngOnDestroy` in [src/app/products/components/product-page/product-page.component.ts](src/app/products/components/product-page/product-page.component.ts#L28-L38).
+
+```ts
+this.subscriptionProducts = this.service.getProductFromApi().subscribe(
+	x => this.products = x
+);
+```
+
+### Pipe
+
+Le pipe trasformano i dati nel template senza modificare i dati originali.
+
+```html
+{{ prezzo | currency:'EUR' }}
+```
+
+Le pipe personalizzate si trovano in `src/app/products/pipes/` e si dichiarano in un modulo o in `standalone` component.
