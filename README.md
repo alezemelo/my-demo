@@ -1,6 +1,6 @@
 # MyDemo
 
-Questo e un progetto in Angular CLI version 19.2.22.
+Questo è un progetto in Angular CLI version 19.2.22.
 
 ## Struttura del progetto
 
@@ -48,19 +48,69 @@ ng lint
 ng test
 ```
 
+## Avvio applicazione
+
+Per far partire l'app:
+
+```bash
+npm install
+```
+
+Avvia il fake server (mock API):
+
+```bash
+json-server db.json -p 7000 -d 1000
+```
+
+In un altro terminale avvia Angular:
+
+```bash
+ng serve -o
+```
+
 ## Mock API (json-server)
 
 Al momento il progetto usa un database mockato con `json-server`:
 
 - https://www.npmjs.com/package/json-server
 
-Per far girare l'app e necessario avviare il fake server con:
+Per far girare l'app, è necessario avviare il fake server dalla cartella che contiene `db.json`:
 
 ```bash
-json-server noeDb.json -p 7000 -d 1000
+json-server db.json -p 7000 -d 1000
 ```
 
 Dove `-p` indica la porta e `-d` il delay (in ms).
+
+Il file `db.json` deve avere questo contenuto minimo:
+
+```json
+{
+	"products": [
+		{
+			"id": 1,
+			"price": 50,
+			"description": "Product 1",
+			"releaseDate": "2026-03-27T00:00:00.000Z",
+			"imageUrl": "https://example.com/product1.jpg"
+		},
+		{
+			"id": 2,
+			"price": 100,
+			"description": "Product 2",
+			"releaseDate": "2026-03-27T00:00:00.000Z",
+			"imageUrl": "https://example.com/product2.jpg"
+		},
+		{
+			"id": 3,
+			"price": 150,
+			"description": "Product 3",
+			"releaseDate": "2026-03-27T00:00:00.000Z",
+			"imageUrl": "https://example.com/product3.jpg"
+		}
+	]
+}
+```
 
 ## HttpClient
 
