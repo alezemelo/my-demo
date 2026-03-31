@@ -1,14 +1,20 @@
 
 import { Routes } from '@angular/router';
+import { firstGuard } from './core/guards/first.guard';
 
 export const routes: Routes = [
     {
         path: 'products',
         loadComponent: () => import('./products/components/product-page/product-page.component').then(m => m.ProductPageComponent)
     },
+     {
+        path: 'products/:id',
+        loadComponent: () => import('./products/components/product-details/product-details.component').then(m => m.ProductDetailsComponent)
+    },
     {
         path: 'users',
-        loadComponent: () => import('./randomUsers/pages/random-users-page/random-users-page.component').then(m => m.RandomUsersPageComponent)
+        loadComponent: () => import('./randomUsers/pages/random-users-page/random-users-page.component').then(m => m.RandomUsersPageComponent),
+        canActivate: [firstGuard]
     },
     {
         path: 'second-observable',

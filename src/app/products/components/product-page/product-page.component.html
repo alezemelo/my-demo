@@ -3,7 +3,6 @@
 <div *ngIf="products.length > 0" else noProducts>
     <h2>Available Products</h2>
         <app-products-table (notify)="onNotify($event)" [products]="products"></app-products-table>
-        <app-product-details [product]="selectedProduct"></app-product-details>
 </div>
 
 <div *ngIf="productsToBeOrdered && productsToBeOrdered.length > 0" else noProductsToOrder>

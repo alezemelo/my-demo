@@ -7,18 +7,32 @@ Questo è un progetto in Angular CLI version 19.2.22.
 
 Questa versione dell'applicazione è organizzata in questo modo:
 
-- `src/` contiene tutto il codice dell'app.
-- `src/app/` è la radice dell'applicazione Angular.
-- `src/app/app.component.*` contiene il componente principale.
-- `src/app/app.routes.ts` e `src/app/app.config.ts` gestiscono routing e configurazione.
-- `src/app/core/components/menu/` contiene il componente di navigazione principale (menu).
-- `src/app/products/` raccoglie la feature Products con:
-  - `components/` per i componenti UI (table, page, details, ecc.).
-  - `models/` per i modelli TypeScript (es. `product.ts`).
-  - `pipes/` per le pipe personalizzate.
-  - `services/` per i servizi Angular (es. accesso ai dati).
-- `src/styles.css` contiene gli stili globali.
-- `public/` ospita asset statici.
+- `src/` contiene tutto il codice dell'applicazione.
+	- `index.html`, `main.ts`, `main.server.ts`, `server.ts`, `styles.css` e la cartella `environments/` per le configurazioni.
+- `src/app/` è la radice dell'app Angular e contiene:
+	- `app.component.*`: il componente principale.
+	- `app.config.ts` e `app.config.server.ts`: configurazione globale e server-side.
+	- `app.routes.ts` e `app.routes.server.ts`: definizione delle route client e server.
+	- `core/`: funzionalità condivise e di base dell'applicazione:
+		- `components/menu/`: componente di navigazione principale (menu).
+		- `guards/`: guardie di routing (es. autenticazione).
+		- `interceptors/`: http interceptor personalizzati.
+		- `services/`: servizi condivisi (es. autenticazione).
+	- `products/`: feature Products:
+		- `components/`: componenti UI (table, page, details, observable, ecc.).
+		- `models/`: modelli TypeScript (es. `product.ts`).
+		- `pipes/`: pipe personalizzate.
+		- `services/`: servizi Angular per i prodotti e offerte.
+	- `randomUsers/`: feature utenti random:
+		- `components/user-card/`: componente per la visualizzazione utente.
+		- `models/`: modello utente random.
+		- `pages/random-users-page/`: pagina utenti random.
+		- `services/`: servizi per utenti random.
+	- `shared/`: componenti condivisi:
+		- `not-found/`: pagina di errore 404.
+		- `welcome/`: pagina di benvenuto.
+- `public/` ospita asset statici (es. favicon).
+- File di configurazione e build: `angular.json`, `package.json`, `tsconfig*.json`, ecc.
 
 ## Navigazione e Routing
 
@@ -84,7 +98,7 @@ npm install
 Avvia il fake server (mock API):
 
 ```bash
-json-server db.json -p 7000 -d 1000
+npx json-server db.json -p 7000 -d 1000
 ```
 
 In un altro terminale avvia Angular:
@@ -139,17 +153,93 @@ Il file `db.json` deve avere questo contenuto minimo:
 
 ## HttpClient
 
-Per abilitare `HttpClient` si usa direttamente `app.config.ts`.
+`HttpClient` è il servizio di Angular che permette di effettuare richieste HTTP (GET, POST, PUT, DELETE, ecc.) verso API REST o altri endpoint web in modo semplice, tipizzato e reattivo (tramite Observable). Si usa per comunicare con backend, recuperare o inviare dati e integrare servizi esterni.
 
-Esempio:
+Nel caso di questo progetto, le chiamate `HttpClient` (ad esempio le GET per recuperare i prodotti) vengono effettuate verso il backend mock fornito da **json-server**, che espone le API locali definite nel file `db.json`.
 
-```ts
-import { ApplicationConfig } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
+In questo progetto, `HttpClient` viene abilitato e configurato tramite il file `src/app/app.config.ts` usando la funzione `provideHttpClient`.
+
+Oltre all'abilitazione base, qui vengono anche registrati gli **HttpInterceptor** tramite la funzione `withInterceptors`, così tutte le richieste HTTP passano attraverso la catena di interceptor definiti.
+
+Esempio reale di configurazione:
+
+```typescript
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { firstInterceptorInterceptor } from './core/interceptors/first-interceptor.interceptor';
+import { secondInterceptorInterceptor } from './core/interceptors/second-interceptor.interceptor';
 
 export const appConfig: ApplicationConfig = {
-	providers: [provideHttpClient()]
+	providers: [
+		provideZoneChangeDetection({ eventCoalescing: true }),
+		provideHttpClient(
+			withInterceptors([
+				firstInterceptorInterceptor,
+				secondInterceptorInterceptor
+			])
+		),
+		// altri provider...
+	]
 };
+```
+
+In questo modo, tutte le richieste HTTP effettuate tramite `HttpClient` sono automaticamente intercettate dagli interceptor definiti in `src/app/core/interceptors/`.
+
+### Esempi di utilizzo di HttpClient nel codice
+
+Ecco alcuni esempi reali di come viene usato `HttpClient` nel progetto per effettuare chiamate HTTP verso json-server:
+
+**Esempio di chiamata GET per ottenere la lista dei prodotti:**
+
+File: `src/app/products/services/products.service.ts`
+
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Product } from '../models/product';
+
+@Injectable({ providedIn: 'root' })
+export class ProductsService {
+	constructor(private httpClient: HttpClient) {}
+
+	getProductFromApi(): Observable<Product[]> {
+		return this.httpClient.get<Product[]>('http://localhost:7000/products');
+	}
+}
+```
+
+**Esempio di utilizzo in un componente per ricevere i dati:**
+
+File: `src/app/products/components/product-page/product-page.component.ts`
+
+```typescript
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ProductsService } from '../../services/products.service';
+import { Subscription } from 'rxjs';
+import { Product } from '../../models/product';
+
+@Component({
+	selector: 'app-product-page',
+	templateUrl: './product-page.component.html',
+	styleUrls: ['./product-page.component.css']
+})
+export class ProductPageComponent implements OnInit, OnDestroy {
+	products: Product[] = [];
+	subscriptionProducts?: Subscription;
+
+	constructor(private service: ProductsService) {}
+
+	ngOnInit(): void {
+		this.subscriptionProducts = this.service.getProductFromApi().subscribe(
+			x => this.products = x
+		);
+	}
+
+	ngOnDestroy(): void {
+		this.subscriptionProducts?.unsubscribe();
+	}
+}
 ```
 
 ## Concetti chiave
@@ -228,4 +318,132 @@ Le pipe trasformano i dati nel template senza modificare i dati originali.
 {{ prezzo | currency:'EUR' }}
 ```
 
-Le pipe personalizzate si trovano in `src/app/products/pipes/` e si dichiarano in un modulo o in `standalone` component.
+## Guard (Route Guard)
+
+Le **Guard** di Angular sono funzioni o servizi che permettono di controllare l’accesso alle route. Sono spesso usate per proteggere pagine riservate, gestire l’autenticazione o bloccare la navigazione in base a condizioni personalizzate.
+
+Nel progetto, le guard vengono implementate come funzioni standalone (Angular 15+) usando l’interfaccia `CanActivateFn`.
+
+### Esempio di guard per autenticazione
+
+File: `src/app/core/guards/first.guard.ts`
+
+```typescript
+import { CanActivateFn } from '@angular/router';
+import { Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { AuthService } from '../services/auth.service';
+
+export const firstGuard: CanActivateFn = (route, state) => {
+  const router = inject(Router);
+  const authService = inject(AuthService);
+  if(authService.isLogged){
+    return true;
+  }
+  
+  return false;
+
+};
+```
+
+Questa guard blocca l’accesso alle route protette se l’utente non è autenticato e lo reindirizza alla pagina di login.
+
+### Come si usano le guard nelle route
+
+Nel file delle route (`app.routes.ts`), puoi applicare la guard a qualsiasi route che vuoi proteggere. Esempi pratici dal progetto:
+
+**Protezione della pagina utenti:**
+
+```typescript
+{
+	path: 'users',
+	loadComponent: () => import('./randomUsers/pages/random-users-page/random-users-page.component').then(m => m.RandomUsersPageComponent),
+	canActivate: [firstGuard]
+}
+```
+
+**Protezione della pagina di benvenuto:**
+
+```typescript
+{
+	path: 'welcome',
+	loadComponent: () => import('./shared/welcome/welcome.component').then(m => m.WelcomeComponent),
+	canActivate: [firstGuard]
+}
+```
+
+In questo modo, la navigazione verso `/users` e `/welcome` sarà consentita solo se la guard restituisce `true` (ad esempio, se l’utente è autenticato).
+
+### Esempio di integrazione con AuthService
+
+Nel progetto è presente un servizio di autenticazione (`AuthService`) che gestisce lo stato di login:
+
+```typescript
+// src/app/core/services/auth.service.ts
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { delay, tap } from 'rxjs/operators';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+	isLogged = false;
+	logout() {
+		this.isLogged = false;
+	}
+	login(): Observable<boolean> {
+		return of(true).pipe(
+			delay(1000),
+			tap(() => this.isLogged = true)
+		);
+	}
+}
+```
+
+La guard può usare questo servizio per controllare l’accesso
+
+
+
+## HttpInterceptor
+
+Gli **HttpInterceptor** in Angular sono strumenti che permettono di intercettare e modificare tutte le richieste e risposte HTTP effettuate tramite `HttpClient`. Sono utili per aggiungere header, gestire autenticazione, logging, error handling, ecc.
+
+### Come funzionano
+
+Un interceptor è una funzione o classe che implementa la logica da eseguire prima che una richiesta HTTP venga inviata o una risposta venga ricevuta. Tutte le richieste passano attraverso la catena di interceptor registrati.
+
+### Configurazione nel progetto
+
+In questo progetto, gli interceptor sono configurati in modalità **standalone** tramite il file `src/app/app.config.ts` usando la funzione `withInterceptors` di Angular 16+.
+
+Esempio di configurazione reale:
+
+```typescript
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { firstInterceptorInterceptor } from './core/interceptors/first-interceptor.interceptor';
+import { secondInterceptorInterceptor } from './core/interceptors/second-interceptor.interceptor';
+
+export const appConfig: ApplicationConfig = {
+	providers: [
+		// ...altri provider...
+		provideHttpClient(
+			withInterceptors([
+				firstInterceptorInterceptor,
+				secondInterceptorInterceptor
+			])
+		),
+		// ...altri provider...
+	]
+};
+```
+Gli interceptor sono definiti come funzioni in `src/app/core/interceptors/`:
+
+```typescript
+// Esempio: first-interceptor.interceptor.ts
+import { HttpInterceptorFn } from '@angular/common/http';
+
+export const firstInterceptorInterceptor: HttpInterceptorFn = (req, next) => {
+	// Logica custom
+	return next(req);
+};
+```
+In questo modo, tutte le richieste HTTP passeranno attraverso gli interceptor definiti, permettendo di centralizzare logiche trasversali come logging, gestione errori, aggiunta di header, ecc.

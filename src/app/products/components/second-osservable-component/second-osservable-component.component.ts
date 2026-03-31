@@ -3,6 +3,7 @@ import { Product } from '../../models/product';
 import { ProductsService } from '../../services/products.service';
 import { Observable, range } from 'rxjs';
 import { map, filter, debounce, debounceTime } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-second-osservable-component',
@@ -15,7 +16,7 @@ export class SecondOsservableComponentComponent implements OnChanges{
   valoreCalcolato: number=0;
 
 
-  constructor(private service: ProductsService) {
+  constructor(private router: Router, private service: ProductsService) {
       const sorgente$: Observable<number> = range(0,10); //tutti le variabili observable 
       // per convenzione utilizzano il simbolo $ alla fine del nome
       sorgente$.pipe(
@@ -27,5 +28,9 @@ export class SecondOsservableComponentComponent implements OnChanges{
     this.valoreCalcolato = changes['valoreInput'].currentValue * 3;
     // Handle changes to the input property
     console.log(changes);
+  }
+
+  navigate(): void{
+    this.router.navigate(['/products']);
   }
 }
