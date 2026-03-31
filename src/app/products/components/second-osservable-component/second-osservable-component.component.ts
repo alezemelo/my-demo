@@ -33,4 +33,12 @@ export class SecondOsservableComponentComponent implements OnChanges{
   navigate(): void{
     this.router.navigate(['/products']);
   }
+  onKey(event: KeyboardEvent): void {
+    //KeyboardEvent è un tipo di evento che si verifica quando l'utente preme un tasto sulla tastiera
+  
+    const input = event.target as HTMLInputElement; //cast dell'evento a HTMLInputElement
+    const value = input.value;
+    console.log(value);
+    
+  }
 }

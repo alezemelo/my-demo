@@ -4,6 +4,10 @@ import { firstGuard } from './core/guards/first.guard';
 
 export const routes: Routes = [
     {
+        path: 'hero-form',
+        loadComponent: () => import('./hero-form/components/hero-form/hero-form.component').then(m => m.HeroFormComponent)
+    },
+    {
         path: 'products',
         loadComponent: () => import('./products/components/product-page/product-page.component').then(m => m.ProductPageComponent)
     },
@@ -15,6 +19,10 @@ export const routes: Routes = [
         path: 'users',
         loadComponent: () => import('./randomUsers/pages/random-users-page/random-users-page.component').then(m => m.RandomUsersPageComponent),
         canActivate: [firstGuard]
+    },
+    {
+        path: 'first-observable',
+        loadComponent: () => import('./products/components/osservable-component/osservable-component.component').then(m => m.OsservableComponentComponent)
     },
     {
         path: 'second-observable',
