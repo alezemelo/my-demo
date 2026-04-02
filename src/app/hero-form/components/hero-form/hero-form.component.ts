@@ -18,4 +18,7 @@ export class HeroFormComponent {
     console.log('Form submitted!');
     console.log(this.hero);
   }
+  newHero(): void {
+    this.hero = new Hero(2,'','','');
+  }
 }

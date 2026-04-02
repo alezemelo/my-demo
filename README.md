@@ -318,6 +318,107 @@ Le pipe trasformano i dati nel template senza modificare i dati originali.
 {{ prezzo | currency:'EUR' }}
 ```
 
+## Form in Angular
+
+Nel progetto sono presenti tre approcci principali ai form Angular, ciascuno con un componente di riferimento:
+
+- Template-driven (context-driven): [src/app/hero-form/components/hero-form/hero-form.component.ts](src/app/hero-form/components/hero-form/hero-form.component.ts)
+- Reactive form con `FormControl`: [src/app/hero-form/components/reactive-hero/reactive-hero.component.ts](src/app/hero-form/components/reactive-hero/reactive-hero.component.ts)
+- Reactive form con `FormGroup` (group form): [src/app/hero-form/components/group-hero/group-hero.component.ts](src/app/hero-form/components/group-hero/group-hero.component.ts)
+
+### Template-driven (context-driven) form
+
+Il componente `HeroFormComponent` usa il template per definire il form. In questo approccio il modello viene creato e aggiornato automaticamente da Angular tramite le direttive nel template (ad esempio `ngModel`). Per usarlo serve `FormsModule`.
+
+Import e configurazione nel componente:
+
+```typescript
+import { FormsModule } from '@angular/forms';
+
+@Component({
+	imports: [NgFor, NgIf, FormsModule],
+	// ...
+})
+```
+
+Esempio di template HTML:
+
+```html
+<form #heroForm="ngForm" (ngSubmit)="onSubmit()">
+	<input name="name" [(ngModel)]="hero.name" required />
+	<select name="power" [(ngModel)]="hero.power">
+		<option *ngFor="let p of powers" [value]="p">{{ p }}</option>
+	</select>
+	<button type="submit">Save</button>
+</form>
+```
+
+### Reactive form con FormControl
+
+Il componente `ReactiveHeroComponent` mostra un form reattivo basato su `FormControl`. Qui il controllo viene creato nel TypeScript e il template si collega a questo stato. Serve `ReactiveFormsModule`.
+
+Import e configurazione nel componente:
+
+```typescript
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+
+@Component({
+	imports: [ReactiveFormsModule],
+	// ...
+})
+```
+
+Esempio d'uso nel componente:
+
+```typescript
+myControl = new FormControl('valore iniziale');
+```
+
+Esempio di template HTML:
+
+```html
+<input [formControl]="myControl" />
+```
+
+### Reactive form con FormGroup (group form)
+
+Il componente `GroupHeroComponent` usa un `FormGroup` creato con `FormBuilder` per definire un form strutturato con piu campi e validazioni. Anche in questo caso serve `ReactiveFormsModule`.
+
+Import e configurazione nel componente:
+
+```typescript
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+
+@Component({
+	imports: [ReactiveFormsModule],
+	// ...
+})
+```
+
+Esempio d'uso nel componente:
+
+```typescript
+this.myForm = this.formBuilder.group({
+	name: ['', [Validators.required, Validators.minLength(3)]],
+	alterEgo: ['', [Validators.required]]
+});
+```
+
+Esempio di template HTML:
+
+```html
+<form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+	<input formControlName="name" />
+	<input formControlName="alterEgo" />
+	<button type="submit">Save</button>
+</form>
+```
+
+### Differenze principali
+
+- Template-driven (context-driven): piu semplice e dichiarativo, ideale per form piccoli.
+- Reactive (FormControl/FormGroup): piu scalabile e adatto a validazioni e logiche complesse, con stato gestito nel TypeScript.
+
 ## Guard (Route Guard)
 
 Le **Guard** di Angular sono funzioni o servizi che permettono di controllare l’accesso alle route. Sono spesso usate per proteggere pagine riservate, gestire l’autenticazione o bloccare la navigazione in base a condizioni personalizzate.

@@ -8,6 +8,14 @@ export const routes: Routes = [
         loadComponent: () => import('./hero-form/components/hero-form/hero-form.component').then(m => m.HeroFormComponent)
     },
     {
+        path: 'reactive-hero-form',
+        loadComponent: () => import('./hero-form/components/reactive-hero/reactive-hero.component').then(m => m.ReactiveHeroComponent)
+    },
+    {
+        path: 'group-hero-form',
+        loadComponent: () => import('./hero-form/components/group-hero/group-hero.component').then(m => m.GroupHeroComponent)
+    },
+    {
         path: 'products',
         loadComponent: () => import('./products/components/product-page/product-page.component').then(m => m.ProductPageComponent)
     },

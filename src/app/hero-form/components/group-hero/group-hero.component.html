@@ -1,0 +1,26 @@
+<p>group-hero works!</p>
+
+<form *ngIf="myForm" [formGroup]="myForm" (ngSubmit)="onSubmit()" >
+  <div class="form-group">
+    <label for="name">Nome:</label>
+    <input formControlName="name" type="text" class="form-control" id="name" name="name">
+    <div *ngIf="myForm.get('name')?.invalid && (myForm.get('name')?.dirty || myForm.get('name')?.touched)" class="alert alert-danger">
+        <div *ngIf="myForm.get('name')?.errors?.['required']">
+          Il nome è richiesto.
+        </div>
+        <div *ngIf="myForm.get('name')?.errors?.['minlength']">
+          Il nome deve avere almeno 3 caratteri.
+        </div>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="alterEgo">Alter Ego:</label>
+    <input formControlName="alterEgo" type="text" class="form-control" id="alterEgo" name="alterEgo">
+    <div *ngIf="myForm.get('alterEgo')?.invalid && (myForm.get('alterEgo')?.dirty || myForm.get('alterEgo')?.touched)" class="alert alert-danger">
+        <div *ngIf="myForm.get('alterEgo')?.errors?.['required']">
+          L'alter ego è richiesto.
+        </div>
+    </div>
+  </div>
+  <button style="margin-top: 4px;" type="submit" class="btn btn-success">Submit</button>
+</form>

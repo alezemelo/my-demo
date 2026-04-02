@@ -1,0 +1,9 @@
+<p>reactive-hero works!</p>
+
+<input type="text" [formControl]="myControl" >
+<!-- <p>{{myControl.value}}</p> -->
+<!--Diventa un modo alternativo per fare una subscription ma da codice html, 
+senza dover scrivere codice typescript per fare subscribe e unsubscribe
+L'unsubscribe è gestito in automatico dall'async pipe in angular, quindi non
+ c'è rischio di memory leak -->
+<p> {{myControl.valueChanges | async}}</p> 
